@@ -1,0 +1,20 @@
+
+db_config = {
+        'host': 'localhost',
+        'user': 'root',
+        'password': '123456',
+        'database': 'spark'
+}
+
+按上述信息配置mysql数据库--》设置数据库用户名为root，密码123456，创建数据库spark
+
+在spark数据库中执行spark.sql数据库脚本
+
+
+
+
+
+
+
+
+
