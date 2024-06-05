@@ -209,6 +209,7 @@ const back = () => {
         </div>
         <div style="margin-top: 5%;">
           <label style="font-weight: bolder;font-size: 18px;">展示图片</label>
+          <!-- 需要后端传入图片的url地址，复制给pictureurl -->
           <div class="showpic">
             <el-image :src="pictureurl"></el-image>
           </div>
