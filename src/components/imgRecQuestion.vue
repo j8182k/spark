@@ -2,27 +2,13 @@
 import { ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import request from "@/util/request.js";
-import { UploadFilled, ArrowLeft } from "@element-plus/icons-vue";
+import { UploadFilled } from "@element-plus/icons-vue";
 import { useQuestionStore } from "@/stores/question.js";
-const fileList = ref([]);
+const fileList = ref([
+]);
 const pictureurl = ref();
 const questionStore = useQuestionStore();
-const handleExceed = (files) => {
-  // 清空 fileList
-  fileList.value = [];
 
-  // 获取第一个文件
-  const file = files[0];
-
-  // 生成新的文件 ID
-  file.uid = Date.now() + Math.random().toString(36).substr(2, 9);
-
-  // 将新文件添加到 fileList
-  fileList.value.push(file);
-  selectedFile.value = file;
-  // console.log('新文件')
-  // console.log(selectedFile.value)
-};
 
 const dic = ref({
   Q: "",
@@ -36,6 +22,13 @@ const dic = ref({
   message: "",
   sigma: 8.334,
 });
+const question_list = ref([
+  // 格式：
+  {
+      dic:{},
+      img_url:''
+  }
+])
 const setDic = (data) => {
   dic.value.Q = data.Q;
   dic.value.A = data.A;
@@ -49,15 +42,11 @@ const setDic = (data) => {
 const isLoading = ref(false);
 // 选择要上传的文件
 const selectedFile = ref();
-const handleFileUpload = async (file) => {
-  selectedFile.value = await file.file;
-  console.log(selectedFile.value);
-};
-const submitForm = async () => {
-  if (selectedFile.value) {
+
+const uploadImg = async (img_file) => {
+  
     const params = new FormData();
-    params.append("img", selectedFile.value);
-    // alert(selectedFile.value.name)
+    params.append("img", img_file);
     try {
       isLoading.value = true;
       const response = await request.post(
@@ -69,12 +58,8 @@ const submitForm = async () => {
           },
         }
       );
-      // console.log("response.data");
-      // console.log(response.data);
       setDic(response.data);
       isLoading.value = false;
-      // console.log("dic.value");
-      // console.log(dic.value);
       ElMessage({
         type: "success",
         message: `图片识别成功，请按需修改`,
@@ -82,9 +67,7 @@ const submitForm = async () => {
     } catch (error) {
       console.error(error);
     }
-  } else {
-    alert("请选择一个图片上传");
-  }
+  
 };
 
 const Qconfirm = async () => {
@@ -148,43 +131,51 @@ const Qconfirm = async () => {
           message: `新题目已生成`,
         });
       });
-
-      // console.error(error);
     }
   } else {
     alert("没有题目");
   }
 };
-import { useRouter } from "vue-router";
-const router = useRouter();
-const back = () => {
-  router.push("/questionManage");
+// 图片预览处理
+const handlePreview = (file) => {
+  pictureurl.value = file.url
+}
+// 图片上传处理
+const handleFileUpload = (file) => {
+  selectedFile.value = file.file;
+  uploadImg(file.file)
+  fileList.value.push(file.file)
+  
 };
 </script>
 <template>
-  <!-- <div>
-
-    <input type="file" @change="handleFileUpload($event)"/>
-    <button @click="submitForm">上传文件</button>
-  </div>-->
-  <!-- <el-button type="primary" :icon="ArrowLeft" @click="back">返回</el-button> -->
 
   <el-card class="boxcard" v-loading="isLoading">
+    
     <div class="card-wrapper">
       <el-card class="leftcard">
+        <label style="font-weight: bolder;font-size: 18px;">题目图片上传</label>
+        <div style="margin-top: 5%; border-color: cadetblue;">
+          <!-- <label style="font-weight: bolder;font-size: 18px;">图片预览</label> -->
+          <!-- 需要后端传入图片的url地址，复制给pictureurl -->
+          <div class="showpic">
+            <el-image :src="pictureurl"></el-image>
+          </div>
+        </div>
         <div class="upload">
-          <label style="font-weight: bolder;font-size: 18px;">上传题目</label>
           <div style="display: flex;flex-direction: column;margin-top: 5%;">
             <div style="display: flex;">
               <el-upload
                 class="upload-demo"
                 drag
-                action="#"
+                action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
                 multiple
-                :limit="1"
+                
                 :file-list="fileList"
                 :http-request="handleFileUpload"
-                :on-exceed="handleExceed"
+                :on-preview="handlePreview"
+                
+                list-type="picture-card"
               >
                 <el-icon class="el-icon--upload">
                   <upload-filled />
@@ -193,27 +184,26 @@ const back = () => {
                   把图片拖拽到此处或
                   <em>点击上传</em>
                 </div>
-                <template #tip>
-                  <div class="el-upload__tip" style="margin-top: 3%;">
-                    <span>{{'（1）像素要求：最短边至少15px，最长边最大4096px； （2）大小要求：<4MB； （3）格式要求：JPEG，PNG，BMP.'}}</span>
-                  </div>
-                </template>
+                
               </el-upload>
             </div>
-            <span style="text-align: center;margin: 3%;">图片文字识别选择题（可以跳过图片识别直接在上面填写题目信息）</span>
-            <div style="text-align: center;">
-              <el-button @click="Qconfirm" type="success" style="margin-right: 10%;">题目上传</el-button>
-              <el-button @click="submitForm" type="success">识别图片</el-button>
+            <div style="margin-top: 5%;">
+              
+                    <div class="el-upload__tip" style="margin-top: 3%;">
+                      <span>{{'（1）像素要求：最短边至少15px，最长边最大4096px； （2）大小要求：<4MB； （3）格式要求：JPEG，PNG，BMP.'}}</span>
+                    </div>
+                
+                
+                <div style="text-align: center;">
+                  
+                  <el-button @click="Qconfirm" type="success" style="margin-right: 10%;">题目上传</el-button>
+                  <!-- <el-button @click="submitForm" type="success">识别图片</el-button> -->
+                </div>
             </div>
+            
           </div>
         </div>
-        <div style="margin-top: 5%;">
-          <label style="font-weight: bolder;font-size: 18px;">展示图片</label>
-          <!-- 需要后端传入图片的url地址，复制给pictureurl -->
-          <div class="showpic">
-            <el-image :src="pictureurl"></el-image>
-          </div>
-        </div>
+        
       </el-card>
       <el-card class="rightcard">
         <label style="font-weight: bolder;font-size: 18px;">识别题目</label>
