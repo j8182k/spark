@@ -1,5 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
+import { useUserStore } from '@/stores/userInfo.js'
+import {ref,onMounted} from 'vue'
+// const userStore = useUserStore()
+// const first_view = ref()
+// onMounted(()=>{
+//     let typ = userStore.info.type 
+//     if(typ==='student'){
+//         first_view.value = '/evaluation'
+//     }else{
+//         first_view.value = '/questionManage'
+//     }
+// })
 //导入组件
 import LoginVue from '@/views/login.vue'
 import upLoad from '@/components/upLoadFile.vue'
@@ -14,11 +25,23 @@ import errorQuestion from '@/components/errorQuestion.vue'
 import history from '@/components/history.vue'
 import userInfo from '@/components/userInfo.vue'
 import resetPassword from '@/components/resetPassword.vue'
+import semesterManage from '@/views/semesterManage.vue'
 //定义路由关系
 const routes = [
-    { path: '/login', component: LoginVue },
+    { path: '/', component: LoginVue },
     {
-        path: '/', component: layout,redirect:'/evaluation',children:[
+        path: '/layout', component: layout,redirect:(to, from, next) => {
+            // 假设你已经获取了用户类型，存储在变量 userType 中
+            const userStore = useUserStore()
+            const userType = userStore.info.type; // 或者 'student'
+            if (userType === 'teacher') {
+                return '/questionManage'
+            } else if (userType === 'student') {
+                return '/evaluation'
+            } else {
+                return '/'
+            }
+        },children:[
             { path:'/chat', component: chat},
             { path:'/getQuestion', component: getQuestion },
             { path: '/chatByFiles', component: chatByFiles },
@@ -29,7 +52,8 @@ const routes = [
             { path: '/errorQuestion', component: errorQuestion },
             { path: '/history', component: history },
             { path: '/userInfo', component: userInfo },
-            { path: '/resetPassword', component: resetPassword }
+            { path: '/resetPassword', component: resetPassword },
+            { path: '/semesterManage', component: semesterManage },
 
 
         ]

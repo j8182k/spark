@@ -2,7 +2,6 @@
 import {
     Management,
     Promotion,
-    UserFilled,
     User,
     Crop,
     EditPen,
@@ -11,14 +10,25 @@ import {
 } from '@element-plus/icons-vue'
 import {useTokenStore} from '@/stores/token.js'
 import {useUserStore} from '@/stores/userInfo.js'
-import {ref} from 'vue'
+import { ref,onMounted } from 'vue'
 const userStore = useUserStore()
 const tokenStore = useTokenStore()
-
+const isStudent = ref(false)
+const isTeacher = ref(false)
 //条目被点击后,调用的函数
 import {useRouter} from 'vue-router'
 const router = useRouter();
 import {ElMessage,ElMessageBox} from 'element-plus'
+
+
+onMounted(()=>{
+    let type = userStore.info.type
+    if(type === 'teacher'){
+        isTeacher.value = true
+    }else{
+        isStudent.value = true
+    }
+})
 
 const handleCommand = (command)=>{
     //判断指令
@@ -36,7 +46,7 @@ const handleCommand = (command)=>{
         .then(async () => {
             tokenStore.removeToken()
             //2.跳转到登录页面
-            router.push('/login')
+            router.push('/')
 
             ElMessage({
                 type: 'success',
@@ -86,35 +96,42 @@ const handleCommand = (command)=>{
                         <span>知识文本上传</span>
                     </el-menu-item>
                 </el-sub-menu> -->
-                <el-menu-item index="/evaluation">
+                <el-menu-item index="/evaluation" v-if="isStudent">
                     <el-icon>
                         <Management />
                     </el-icon>
                     <span>智能测评</span>
                 </el-menu-item>
-                <el-menu-item index="/imgRec">
-                    <el-icon>
-                        <Promotion />
-                    </el-icon>
-                    <span>上传题目</span>
-                </el-menu-item>
-                <el-menu-item index="/questionManage">
-                    <el-icon>
-                        <Promotion />
-                    </el-icon>
-                    <span>题目管理</span>
-                </el-menu-item>
-                <el-menu-item index="/errorQuestion">
+               
+                <el-menu-item index="/errorQuestion" v-if="isStudent">
                     <el-icon>
                         <User />
                     </el-icon>
                     <span>错题集</span>
                 </el-menu-item>
-                <el-menu-item index="/history">
+                <el-menu-item index="/history" v-if="isStudent">
                     <el-icon>
                         <Management />
                     </el-icon>
                     <span>答题记录</span>
+                </el-menu-item>
+                <el-menu-item index="/imgRec" v-if="isTeacher">
+                    <el-icon>
+                        <Promotion />
+                    </el-icon>
+                    <span>上传题目</span>
+                </el-menu-item>
+                <el-menu-item index="/questionManage" v-if="isTeacher">
+                    <el-icon>
+                        <Promotion />
+                    </el-icon>
+                    <span>题目管理</span>
+                </el-menu-item>
+                <el-menu-item index="/semesterManage" v-if="isTeacher">
+                    <el-icon>
+                        <Promotion />
+                    </el-icon>
+                    <span>班级管理</span>
                 </el-menu-item>
             </el-menu>
         </el-aside>
@@ -148,8 +165,8 @@ const handleCommand = (command)=>{
             <el-main>
                 <router-view></router-view>
             </el-main>
-            <!-- 底部区域 -->
-            <el-footer>智化教育 ©2024 Created by 你说得都很队</el-footer>
+            <!-- 底部区域  background: url('@/assets/logo.png') no-repeat center / 120px auto;-->
+            <el-footer>智化教育 ©2024 Created by 嵇康做得队</el-footer>
         </el-container>
     </el-container>
 </template>
@@ -164,7 +181,7 @@ const handleCommand = (command)=>{
         margin-top: -8px;
         &__logo {
             height: 120px;
-            background: url('@/assets/logo.png') no-repeat center / 120px auto;
+            
         }
 
         .el-menu {

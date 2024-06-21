@@ -2,10 +2,10 @@ import {defineStore} from 'pinia'
 import {ref} from 'vue'
 import request from '@/util/request.js'
 import {ElMessage} from 'element-plus'
-import { useDateStore } from '@/util/date.js'
+
 export const useQuestionStore = defineStore('question',()=>{
 
-    const dateStore = useDateStore()
+    
     const currentCourse = ref()
     //定义题目列表
     const questionList = ref([])
@@ -45,6 +45,25 @@ export const useQuestionStore = defineStore('question',()=>{
             console.error(error)
         }
     }
+    const querryQuestion = async(courses,keyword)=>{
+        const params = new FormData();
+        params.append('opt','搜索');
+        params.append('course',courses);
+        params.append('keyword',keyword)
+        try{
+            const response = await request.post('http://localhost:8080/updateQuestion',params)
+            // console.log("题目获取",response.data)
+            let q_dic = response.data
+            let arr = []
+            for(let i in q_dic){
+                arr.push(q_dic[i])
+            }
+            // console.log('arr',arr)
+            return arr
+        }catch(error){
+            console.error(error)
+        }
+    }
     //根据课程和用户名获取题目列表
     const getQuestionByCourse = async(courses,username,num)=>{
         const params = new FormData();
@@ -58,19 +77,10 @@ export const useQuestionStore = defineStore('question',()=>{
             for(let q_id in data){
                 let dic = {question_id:q_id}
                 let line = data[q_id]
-                // console.log('line',line)
-                // line.create_time = dateStore.formatDate(line.create_time)
                 let a = Object.assign(line,dic)
-                // console.log('a',a)
                 arr.push(a)
             }
-            // arr.sort((a, b)=> {
-            //     var date_a = new Date(a)
-            //     var date_b = new Date(b)
-            //     // console.log(date_a,date_b)
-            //     return date_b - date_a;
-            //   })
-            console.log('arr',arr)
+            // console.log('arr',arr)
             return arr
       
         }catch(error){
@@ -148,6 +158,47 @@ export const useQuestionStore = defineStore('question',()=>{
             return 1
         }
     }
+    const updateQuestion = async(question)=>{
+
+        const params = new FormData();
+        params.append('question',question)
+        params.append('opt','编辑')
+        try{
+            const response = await request.post('http://localhost:8080/updateQuestion',params)
+            // console.log("题目详情获取",response.data)
+            ElMessage({
+                type:'success',
+                message:response.desc
+            })
+        }catch(error){
+            console.error(error)
+        }
+
+
+    }
+    const deleteQuestion = async(question)=>{
+
+        const params = new FormData();
+        params.append('question',question)
+        params.append('opt','删除')
+        try{
+            const response = await request.post('http://localhost:8080/updateQuestion',params)
+            // console.log("题目详情获取",response.data)
+            ElMessage({
+                type:'success',
+                message:response.desc
+            })
+        }catch(error){
+            console.error(error)
+        }
+
+
+    }
+
+
+
+
+
     // 把以id为索引的题目字典转换成列表
     const questionDicTolist = (dic)=>{
         console.log('dic',dic)
@@ -175,7 +226,7 @@ export const useQuestionStore = defineStore('question',()=>{
     
 
     return {currentCourse,getQuestionByids,getHistoryQ,getQuestionByCourse,
-        courseList,q_len,addRecord,submit,q_history,clear,
-        genQuestion,getCourse,initHistory}
+        courseList,q_len,addRecord,submit,q_history,clear,initHistory,querryQuestion,
+        genQuestion,getCourse,updateQuestion,deleteQuestion}
 
 },{persist:true})
