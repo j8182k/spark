@@ -115,7 +115,33 @@ export const useUserStore = defineStore('userInfo',()=>{
             console.error(error)
         }
     }
+    const register = async(registerData)=>{
+        
+        let str = JSON.stringify(registerData)
+        console.log('registerData',str)
+        const params = new FormData();
+        params.append('registerData',str);
+        try{
+            const response = await request.post('http://localhost:8080/register',params)
+            let desc = response.desc
+            if(desc=='用户名重复'){
+                ElMessage.error(desc)
+                return false
+            }
+            ElMessage({
+                message:response.desc,
+                type:'success'
+            })
+            return true
+        }catch(error){
+            console.error(error)
+            
+        }
 
+
+
+
+    }
     const removeInfo = ()=>{
         info.value = {
             name:'',
@@ -129,6 +155,6 @@ export const useUserStore = defineStore('userInfo',()=>{
         }
     }
 
-    return {info,setInfo,setSkill,removeInfo,updateInfo,modifyPassword,login}
+    return {info,setInfo,setSkill,removeInfo,updateInfo,modifyPassword,login,register}
 
 },{persist:true})

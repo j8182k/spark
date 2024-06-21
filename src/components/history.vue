@@ -101,9 +101,9 @@ const handleChange = async()=>{
     } else {
         course = selectCourseId.value
     }
-    // console.log(course)
+   
     let data = await historyStore.getHistory(userStore.info.username,course)
-    // console.log('data',data)
+    
 
     setTableData(data)
 }
@@ -111,11 +111,12 @@ const isLoading = ref(false)
 import {useChatStore} from '@/util/chat.js'
 const chatStore = useChatStore()
 const analysis = async(id)=>{
-    // console.log('id',id)
+    
     let q = historyStore.getQuestionInfoById(id)
+   
     let question = q
     q = JSON.stringify(q)+'\n请分析上述题目'
-    // console.log("q",q)
+    
     isLoading.value = true
     let content = await chatStore.chat(q)
     isLoading.value = false
@@ -167,8 +168,8 @@ const addError = (q_id)=>{
                     <el-table-column label="正误" prop="right" />
                     <el-table-column label="操作">
                     <template #default="propss">
-                        <el-button @click="addError(propss.row.id)" type="success" v-loading="upLoading">添加到错题集</el-button>
-                        <el-button @click="analysis(propss.row.id)">星火分析</el-button>
+                        <el-button @click="addError(propss.row.id)" type="success" v-loading="upLoading" v-if="propss.row.Q!='原题已删除'">添加到错题集</el-button>
+                        <el-button @click="analysis(propss.row.id)" v-if="propss.row.Q!='原题已删除'">星火分析</el-button>
                     </template>
                     </el-table-column>
                 </el-table>

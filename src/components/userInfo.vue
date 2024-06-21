@@ -59,10 +59,7 @@ const submit = ()=>{
       <el-input v-model="info.username"  disabled/>
     </el-form-item>
     <el-form-item label="身份" prop="type">
-      <el-select v-model="info.type" placeholder="未知">
-        <el-option label="学生" value="student" />
-        <el-option label="老师" value="teacher" />
-      </el-select>
+      <el-input v-model="info.type"  disabled/>
     </el-form-item>
     <el-form-item label="昵称" prop="nickname">
       <el-input v-model="info.nickname" />
@@ -79,7 +76,7 @@ const submit = ()=>{
     <el-form-item label="班级" prop="class">
       <el-input v-model="info.class" />
     </el-form-item>
-    <el-form-item label="电话" prop="phone" v-if="info.type == 'teacher'">
+    <el-form-item label="电话" prop="phone">
       <el-input v-model="info.phone" />
     </el-form-item>
     <el-form-item>

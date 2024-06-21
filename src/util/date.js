@@ -5,12 +5,12 @@ export const useDateStore = defineStore('dateformat',()=>{
     const formatDate = (dateStr)=> {
         // console.log('dateStr',dateStr)
         let date = null
-        if(typeof dateStr != 'string'){
+        if(date instanceof Date){
               date = dateStr
         }else{              
               date = new Date();
               date.setTime(dateStr*1000)
-              console.log(date)
+              // console.log(date)
         }
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
