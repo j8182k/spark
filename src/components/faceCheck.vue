@@ -2,20 +2,22 @@
   <div>
     <video ref="video" autoplay></video>
     
-    <el-button @click="startCamera">启动摄像头</el-button>
-    <el-button @click="stopCamera">关闭摄像头</el-button>
+    <!-- <el-button @click="startCamera">启动摄像头</el-button>
+    <el-button @click="stopCamera">关闭摄像头</el-button> -->
   </div>
 </template>
 
 <script>
 import request from '@/util/request.js';
 import { ElMessage } from 'element-plus';
+import { useIllegalOperationStore } from '@/stores/illegalOperation';
 export default {
   data() {
     return {
       mediaRecorder: null,
       recordingInterval: null,
       check_seqs:[],
+      illegalOperation:useIllegalOperationStore()
     };
   },
   mounted() {
@@ -79,7 +81,8 @@ export default {
           let isValidate = this.faceValidate()
           if(!isValidate){
               ElMessage.error('人脸验证失败')
-              
+              // 人脸验证失败,设置违规状态
+              this.illegalOperation.state = true
           }else{
             ElMessage({
               type:'success',

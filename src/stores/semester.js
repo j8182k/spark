@@ -7,6 +7,10 @@ import {useTokenStore} from '../stores/token.js'
 export const useSemesterStore = defineStore('semester',()=>{
     
 
+    const classID_course = ref({
+        // 班级id与学科的映射字典
+    })
+   
     const addSemester = async(name,course,teacher)=>{
         const params = new FormData();
         params.append('name',name)
@@ -43,6 +47,7 @@ export const useSemesterStore = defineStore('semester',()=>{
             console.error(error)
         }
     }
+    
 
     const addSutdents = async(semesterId,student)=>{
         const params = new FormData();
@@ -110,6 +115,6 @@ export const useSemesterStore = defineStore('semester',()=>{
 
 
 
-    return {getSemester,getSutdents,addSutdents,suggestions,deleteStudent,searchStudents,addSemester,deleteSemester}
+    return {getSemester,getSutdents,addSutdents,suggestions,deleteStudent,searchStudents,addSemester,deleteSemester,classID_course}
 
 },{persist:true})

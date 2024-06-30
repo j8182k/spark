@@ -155,6 +155,6 @@ export const useUserStore = defineStore('userInfo',()=>{
         }
     }
 
-    return {info,setInfo,setSkill,removeInfo,updateInfo,modifyPassword,login,register}
+    return {info,setInfo,setSkill,removeInfo,updateInfo,modifyPassword,login,register,skill}
 
 },{persist:true})

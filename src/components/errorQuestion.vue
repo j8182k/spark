@@ -128,12 +128,12 @@ const deleteRow = async(row)=>{
             <el-table-column  label="选项D" prop="info.D"> 
 
             </el-table-column>
-            <el-table-column  label="分析" prop="analysis"> 
+            <!-- <el-table-column  label="分析" prop="analysis"> 
 
             </el-table-column>
             <el-table-column  label="知识点" prop="knowledge"> 
 
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column  label="创建时间" prop="create_time"> 
                 
             </el-table-column>

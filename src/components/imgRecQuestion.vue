@@ -159,7 +159,7 @@ const handleFileUpload = (file) => {
           <!-- <label style="font-weight: bolder;font-size: 18px;">图片预览</label> -->
           <!-- 需要后端传入图片的url地址，复制给pictureurl -->
           <div class="showpic">
-            <el-image :src="pictureurl"></el-image>
+            <el-image :src="pictureurl" ></el-image>
           </div>
         </div>
         <div class="upload">
@@ -177,7 +177,7 @@ const handleFileUpload = (file) => {
                 
                 list-type="picture-card"
               >
-                <el-icon class="el-icon--upload">
+                <el-icon class="el-icon--upload" style="height: 50px;">
                   <upload-filled />
                 </el-icon>
                 <div class="el-upload__text">
@@ -227,12 +227,12 @@ const handleFileUpload = (file) => {
             <el-form-item label="答案">
               <el-input v-model="dic.answer" type="textarea" />
             </el-form-item>
-            <el-form-item label="题目类型">
+            <el-form-item label="学科">
               <el-input v-model="dic.course" type="textarea" value="机器学习" />
             </el-form-item>
             <el-form-item label="题目难度识别">
               <div class="slider-demo-block">
-                <el-slider style="width: 500px;" v-model="dic.mu" :step="5" show-stops />
+                <el-slider style="width: 200px;" v-model="dic.mu" :step="5" show-stops />
                 <span
                   class="demonstration"
                 >{{ (dic.mu >= 20 && dic.mu < 30 )? '正常':dic.mu >= 0 && dic.mu <20 ? '简单':dic.mu >= 30 && dic.mu < 50 ? '较难': dic.mu >= 50 && dic.mu < 70 ? '困难':'难出天际'}}</span>

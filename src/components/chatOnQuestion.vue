@@ -1,7 +1,6 @@
 <script setup>
 import {
     Service
-   
 } from '@element-plus/icons-vue'
 import { ref, onMounted,nextTick, computed, watch } from "vue";
 import { ElMessage } from "element-plus";
@@ -23,13 +22,9 @@ const clear  = ()=>{
 }
 const init= ()=>{
   socket.value = io('http://localhost:8080');
-  chatList.value.push({
-      question: "学生，"+ userStore.info.nickname, // 问题
-      answer: "你好，有什么不懂的问题吗？", // 回答
-      timestamp: new Date(), // 时间戳
-      to: "", // 接收者
-      from: "", // 发送者
-    });
+  let question = chatStore.getPreQuestion()
+  console.log('获取question',question)
+  askClick(question)
 }
 onMounted(() => {
   clear()
@@ -139,12 +134,17 @@ const getWeekday = (date) => {
   ];
   return weekdays[date.getDay()];
 };
+import {useRouter} from 'vue-router'
+const router = useRouter();
 
+const back = ()=>{
+    router.push('/history')
+}
 
 
 </script>
 <template>
-  
+  <el-button type="primary" class="btn" @click="back()">返回</el-button>
   <el-container style="height: 100%" ref="bodyform">
     <div class="el_main_content">
       <div class="main_content_header">智能答疑</div>
@@ -207,7 +207,7 @@ const getWeekday = (date) => {
 <style lang="less" scoped>
 .el_main_content {
   width: 50%;
-  height: 90vh;
+  height: 90%;
   border-radius: 5px;
   border: 1px solid #e4e7ed;
   box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.12);

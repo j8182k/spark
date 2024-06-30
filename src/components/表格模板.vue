@@ -8,8 +8,10 @@ import { ref,onMounted } from 'vue'
 import {useQuestionStore} from '@/stores/question.js'
 import {useDateStore} from '@/util/date.js'
 import {usepageStore} from '@/util/page.js'
+import { useTestPlanStore } from '@/stores/testPlan'
 const questionStore = useQuestionStore()
 const dateStore = useDateStore()
+const testPlanStore = useTestPlanStore()
 const pageStore = usepageStore()
 //分类数据模型
 const categorys = ref({})
@@ -29,24 +31,24 @@ const pageNum = ref(1)//当前页
 const total = ref(0)//总条数
 const pageSize = ref(3)//每页条数
 // 点击题目搜索时触发
-const getQuestions = async(course,keyword)=>{
-    let questionList =  await questionStore.querryQuestion(course,keyword)
+const getTestList = async(class_id)=>{
     
-    for(let i in questionList){
-        let time = questionList[i].create_time
-        
-        time = dateStore.formatDateBytimestamp(time)
-        
-        questionList[i].create_time = time
-    }
-    tableData.value = pageStore.init(questionList,pageSize.value)
+    let testList = await testPlanStore.getTestList(class_id)
+    tableData.value = pageStore.init(testList,pageSize.value)
     total.value = pageStore.total
     
 }
 const initData = async()=>{
-    categorys.value = await questionStore.getCourse()
-    categoryId.value = categorys.value[0]
-    getQuestions(categoryId.value)
+    categorys.value = {}
+    // 获取该老师创建的所有班级数据
+    let data = await semesterStore.getSemester(userStore.info.username)
+    // console.log('data',data)
+    for(let i in data){
+        // 设置班级学科映射
+        semesterStore.classID_course[data[i].id] = data[i].course
+        // 填写分类数据模型
+        categorys.value[data[i].id]=data[i].name+'('+data[i].course+')'
+    }
 }
 //当每页条数发生了变化，调用此函数
 const onSizeChange = (size) => {
@@ -54,7 +56,7 @@ const onSizeChange = (size) => {
     pageStore.setPageSize(size)
     pageNum.value = 1
     tableData.value = pageStore.indexPageData(pageNum.value)
-    
+   
 }
 //当前页码发生变化，调用此函数
 const onCurrentChange = (num) => {
@@ -65,10 +67,10 @@ const onCurrentChange = (num) => {
 
 
 const valueInput = (row, column)=>{
-    questionStore.updateQuestion(JSON.stringify(row))
+    
 }
 const deleteQ = async(row)=>{
-    await questionStore.deleteQuestion(JSON.stringify(row))
+    
     initData()
 }
 let tableRowEditId = ref(null) // 控制可编辑的每一行
@@ -86,8 +88,8 @@ const showUnitInput = (row, column) => {
         
         <!-- 搜索表单 -->
         <el-form inline>
-            <el-form-item label="课程：">
-                <el-select  v-model="categoryId" placeholder="请选择" style="width: 240px" @change="getQuestions(categoryId,keyword)">
+            <el-form-item label="班级">
+                <el-select  v-model="categoryId" placeholder="请选择" style="width: 240px" @change="getTestList(categoryId)">
                     <el-option 
                         v-for="key,value in categorys" 
                         :key="key" 
@@ -100,127 +102,78 @@ const showUnitInput = (row, column) => {
                 <el-input v-model="keyword" placeholder="请输入关键字"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary" @click="getQuestions(categoryId,keyword)">搜索</el-button>
+                <el-button type="primary" @click="">搜索</el-button>
                 <el-button @click="keyword=''">重置</el-button>
-                <!-- <el-button @click="upLoadQ" type="success" >上传题目</el-button> -->
             </el-form-item>
         </el-form>
-        <!-- 题目列表 -->
+        <!-- 测评计划显示 -->
         <el-table :data="tableData" :edit="true" style="width: 100%;"  @cell-click="showUnitInput">
             
-                <el-table-column  label="题目id" prop="id" editable>
+                <el-table-column  label="id" prop="id" editable>
                     
                 </el-table-column>
-                <el-table-column  label="难度" prop="mu" editable>
-                    <template #default="{ row, column }">
-                        <span>
-                            {{ (row.mu >= 20 && row.mu < 30 )? 
-                                '正常':row.mu >= 0 && row.mu <20 ? 
-                                '简单':row.mu >= 30 && row.mu < 50 ?
-                                '较难': row.mu >= 50 && row.mu < 70 ?
-                                '困难':'难出天际'}}
-                        </span>
-                    </template>
+                <el-table-column  label="标题" prop="title" editable>
+                    
                 </el-table-column>
-                <el-table-column  label="问题" prop="Q">
+                <el-table-column  label="开始时间" prop="start_time">
                     <template #default="{ row, column }">
                         <el-input
                             v-if="
                             tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            v-model="row.Q"
-                            type="textarea"
-                            :autosize="{ minRows: 2, maxRows: 100 }"
-                            
-                        />
-                        <span v-else>{{ row.Q }}</span>
-                    </template>
-                </el-table-column>
-                <!-- <el-table-column  label="知识点" prop="knowledge">
-                    <template #default="{ row, column }">
-                        <el-input
-                            v-if="
-                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            v-model="row.knowledge"
+                            v-model="row.start_time"
                             type="textarea"
                             :autosize="{ minRows: 2, maxRows: 100 }"
                             @input="valueInput(row, column)"
                         />
-                        <span v-else>{{ row.knowledge }}</span>
-                    </template>
-                </el-table-column> -->
-                <el-table-column  label="选项A" prop="A"> 
-                    <template #default="{ row, column }">
-                        <el-input
-                            v-if="
-                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            
-                            v-model="row.A"
-                            type="textarea"
-                            :autosize="{ minRows: 2, maxRows: 100 }"
-                        />
-                        <span v-else>{{ row.A }}</span>
+                        <span v-else>{{ row.start_time }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column  label="选项B" prop="B">
+                <el-table-column  label="结束时间" prop="end_time">
                     <template #default="{ row, column }">
                         <el-input
                             v-if="
                             tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            
-                            v-model="row.B"
+                            v-model="row.end_time"
                             type="textarea"
                             :autosize="{ minRows: 2, maxRows: 100 }"
+                            @input="valueInput(row, column)"
                         />
-                        <span v-else>{{ row.B }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column  label="选项C" prop="C">
-                    <template #default="{ row, column }">
-                        <el-input
-                            v-if="
-                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            
-                            v-model="row.C"
-                            type="textarea"
-                            :autosize="{ minRows: 2, maxRows: 100 }"
-                        />
-                        <span v-else>{{ row.C }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column  label="选项D" prop="D"> 
-                    <template #default="{ row, column }">
-                        <el-input
-                            v-if="
-                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            
-                            v-model="row.D"
-                            type="textarea"
-                            :autosize="{ minRows: 2, maxRows: 100 }"
-                        />
-                        <span v-else>{{ row.D }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column  label="答案" prop="answer">
-                    <template #default="{ row, column }">
-                        <el-input
-                            v-if="
-                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
-                            
-                            v-model="row.answer"
-                            type="textarea"
-                            :autosize="{ minRows: 2, maxRows: 100 }"
-                        />
-                        <span v-else>{{ row.answer }}</span>
+                        <span v-else>{{ row.end_time }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column  label="创建时间" prop="create_time"> 
                     
                 </el-table-column>
-                <el-table-column  label="操作" width="150">
+                <el-table-column  label="状态" prop="state">
+                    <template #default="{ row, column }">
+                        <el-input
+                            v-if="
+                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
+                            v-model="row.state"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 100 }"
+                            @input="valueInput(row, column)"
+                        />
+                        <span v-else>{{ row.state==0?'未发布':'已发布' }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column  label="备注" prop="remark">
+                    <template #default="{ row, column }">
+                        <el-input
+                            v-if="
+                            tableRowEditId === row.id &&tableColumnEditIndex === column.id"
+                            v-model="row.remark"
+                            type="textarea"
+                            :autosize="{ minRows: 2, maxRows: 100 }"
+                            @input="valueInput(row, column)"
+                        />
+                        <span v-else>{{ row.remark }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column  label="操作" width="100">
                     <template #default="{ row }">
-                        <el-button size="small" @click="valueInput(row)">保存</el-button>
                         <!-- <el-button :icon="Edit" circle plain type="primary"></el-button> -->
-                        <el-button :icon="Delete" @click="deleteQ(row)" circle plain type="danger"></el-button>
+                        <el-button :icon="Delete" @click="" circle plain type="danger"></el-button>
                     </template>
                 </el-table-column>
                 <template #empty>

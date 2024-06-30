@@ -3,10 +3,18 @@ import {
     Management,
     Promotion,
     User,
-    Crop,
+    Star,
+    House,
+    Timer,
+    Calendar,
+    Flag,
+    List,
+    View,
+    Avatar,
     EditPen,
     SwitchButton,
-    CaretBottom
+    CaretBottom,
+    ChatDotRound
 } from '@element-plus/icons-vue'
 import {useTokenStore} from '@/stores/token.js'
 import {useUserStore} from '@/stores/userInfo.js'
@@ -72,7 +80,7 @@ const handleCommand = (command)=>{
     <el-container class="layout-container">
         <!-- 左侧菜单 -->
         <el-aside width="200px">
-            <div class="el-aside__logo"></div>
+            
             <!-- element-plus的菜单标签 -->
             <el-menu active-text-color="#ffd04b" background-color="#232323"  text-color="#fff"
                 router>
@@ -88,7 +96,7 @@ const handleCommand = (command)=>{
                             <User />
                         </el-icon>
                         <span>知识库问答</span>
-                    </el-menu-item>
+                    </el-menu-item
                     <el-menu-item index="/upLoad">
                         <el-icon>
                             <Crop />
@@ -96,43 +104,100 @@ const handleCommand = (command)=>{
                         <span>知识文本上传</span>
                     </el-menu-item>
                 </el-sub-menu> -->
-                <el-menu-item index="/evaluation" v-if="isStudent">
+                <br>
+                <br>
+                <el-menu-item index="/chat" v-if="isStudent">
                     <el-icon>
-                        <Management />
+                        
+                        <ChatDotRound />
                     </el-icon>
-                    <span>智能测评</span>
+                    <span>智能问答</span>
                 </el-menu-item>
-               
-                <el-menu-item index="/errorQuestion" v-if="isStudent">
+                <el-menu-item index="/train" v-if="isStudent">
                     <el-icon>
-                        <User />
+                        <EditPen />
                     </el-icon>
-                    <span>错题集</span>
+                    <span>智能训练</span>
                 </el-menu-item>
+                <el-sub-menu v-if="isStudent">
+                    <template #title>
+                        <el-icon>
+                            <List />
+                        </el-icon>
+                        <span>智能测评</span>
+                    </template>
+                    <el-menu-item index="/evaluation" >
+                        <el-icon>
+                            <Timer />
+                        </el-icon>
+                        <span>开始测评</span>
+                    </el-menu-item>
+                    <el-menu-item index="/showEvalRsVue" >
+                        <el-icon>
+                            <View />
+                        </el-icon>
+                        <span>测评结果查看</span>
+                    </el-menu-item>
+                </el-sub-menu>
+              
                 <el-menu-item index="/history" v-if="isStudent">
                     <el-icon>
-                        <Management />
+                        <View />
                     </el-icon>
                     <span>答题记录</span>
                 </el-menu-item>
+                <el-menu-item index="/errorQuestion" v-if="isStudent">
+                    <el-icon>
+                        <Star />
+                    </el-icon>
+                    <span>错题集</span>
+                </el-menu-item>
+                <el-menu-item index="/teacherHouse" v-if="isTeacher">
+                    <el-icon>
+                        <House />
+                    </el-icon>
+                    <span>首页</span>
+                </el-menu-item>
+                <br>
+           
                 <el-menu-item index="/imgRec" v-if="isTeacher">
                     <el-icon>
-                        <Promotion />
+                        <View />
                     </el-icon>
-                    <span>上传题目</span>
+                    <span>智能识别题目</span>
                 </el-menu-item>
                 <el-menu-item index="/questionManage" v-if="isTeacher">
                     <el-icon>
-                        <Promotion />
+                        <List />
                     </el-icon>
                     <span>题目管理</span>
                 </el-menu-item>
                 <el-menu-item index="/semesterManage" v-if="isTeacher">
                     <el-icon>
-                        <Promotion />
+                        <Avatar />
                     </el-icon>
                     <span>班级管理</span>
                 </el-menu-item>
+                <el-sub-menu v-if="isTeacher">
+                    <template #title>
+                        <el-icon>
+                            <Timer />
+                        </el-icon>
+                        <span>测评管理</span>
+                    </template>
+                    <el-menu-item index="/testPlan" >
+                        <el-icon>
+                            <Calendar />
+                        </el-icon>
+                        <span>创建测评计划</span>
+                    </el-menu-item>
+                    <el-menu-item index="/showTestPlan">
+                        <el-icon>
+                            <Flag />
+                        </el-icon>
+                        <span>测评计划</span>
+                    </el-menu-item>
+                </el-sub-menu>
             </el-menu>
         </el-aside>
         <!-- 右侧主区域 -->
@@ -154,7 +219,7 @@ const handleCommand = (command)=>{
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item command="userInfo" :icon="User">基本资料</el-dropdown-item>
-                            <el-dropdown-item command="" :icon="Crop">更换头像</el-dropdown-item>
+                            <!-- <el-dropdown-item command="" :icon="Crop">更换头像</el-dropdown-item> -->
                             <el-dropdown-item command="resetPassword" :icon="EditPen">重置密码</el-dropdown-item>
                             <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
                         </el-dropdown-menu>

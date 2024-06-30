@@ -54,10 +54,11 @@ const initData = async()=>{
     let data = await semesterStore.getSemester(userStore.info.username)
     categorys.value = {}
     for(let i in data){
-        
+        semesterStore.classID_course[data[i].id] = data[i].course
         categorys.value[data[i].id]=data[i].name+'('+data[i].course+')'
         
     }
+    // console.log('classID_course',semesterStore.classID_course)
     categoryId.value = data[0].id.toString()
     getTableData()
 
@@ -76,13 +77,6 @@ const onCurrentChange = (num) => {
     tableData.value = pageStore.indexPageData(num)
 }
 
-const clear =()=>{
-//根据课程查询到的所有题目
-    pageNum.value = 1//当前页
-    total.value = 0//总条数
-    pageSize.value = 10//每页条数
-
-}
 
 
 const deleteRow = async(row)=>{
@@ -99,6 +93,7 @@ const showUnitInput = (row, column) => {
 }
 const dialogFormVisible = ref(false)
 const dialogFormVisible1 = ref(false)
+const dialogFormVisible2 = ref(false)
 const new_student = ref()
 
 const querySearch = async(queryString, cb)=>{
@@ -125,8 +120,10 @@ const querySearchs = async(queryString)=>{
 }
 const addStudent = async(semesterid,username1)=>{
     let str = username1
+    // 用户名必须是数字
     const regex = /\((\d+)\)/;
     const match = str.match(regex);
+    
     username1 = match ? match[1] : null;
     
     await semesterStore.addSutdents(semesterid,username1)
@@ -147,6 +144,11 @@ const deleteSemester = async()=>{
     await semesterStore.deleteSemester(semesterId)
     initData()
 }
+
+import createTest from '@/components/createTest.vue'
+
+
+
 </script>
 <template>
 
@@ -178,6 +180,9 @@ const deleteSemester = async()=>{
                 <el-button type="danger" @click="centerDialogVisible=true">
                     删除当前班级
                 </el-button>
+                <!-- <el-button type="success" @click=" dialogFormVisible2 = true">
+                    发布测评计划
+                </el-button> -->
                 <el-dialog v-model="dialogFormVisible" title="添加学生" width="500">
                             <el-form-item label="班级">
                                     <el-select  v-model="categoryId" placeholder="请选择" style="width: 240px">
@@ -191,7 +196,6 @@ const deleteSemester = async()=>{
                             </el-form-item>
                     <!-- 输入姓名时出现多个选项 -->
                             <el-form :model="new_student" v-if="!(categoryId=='')" style="margin-top: 5px;">
-                               
                                 <el-form-item label="姓名">
                                     <el-autocomplete
                                         v-model="new_student"
@@ -249,6 +253,9 @@ const deleteSemester = async()=>{
                     </div>
                     </template>
                 </el-dialog>
+                <!-- <el-dialog v-model="dialogFormVisible2" title="发布测评计划" width="500">
+                           <createTest :formData="categoryId"></createTest>
+                </el-dialog> -->
             </el-form-item>
         </el-form>
         <!-- 学生列表 -->
@@ -299,18 +306,18 @@ const deleteSemester = async()=>{
                         <span v-else>{{ row.phone }}</span>
                     </template> -->
                 </el-table-column>
-                <el-table-column  label="学科能力" prop="mu">
-                    <!-- <template #default="{ row, column }">
-                        <el-input
+                <el-table-column  label="学科能力值" prop="mu">
+                    <template #default="{ row, column }">
+                        <!-- <el-input
                             v-if="
                             tableRowEditId === row.id &&tableColumnEditIndex === column.id"
                             @input="valueInput(row, column)"
                             v-model="row.mu"
                             type="textarea"
                             :autosize="{ minRows: 2, maxRows: 100 }"
-                        />
-                        <span v-else>{{ row.mu }}</span>
-                    </template> -->
+                        /> -->
+                        <span>{{ row.mu.toFixed(2) }}</span>
+                    </template>
                 </el-table-column>
                 
                 <el-table-column  label="操作" width="100">

@@ -63,14 +63,7 @@ export const useErrorQuestionStore = defineStore('errorQ',()=>{
             console.error(error)
         }
 
-
-
     }
-
-    const clear = ()=>{
-        
-    }
-
     
 
     return {getErrorQuestions,addErrorQuestions,deleteErrorQ}

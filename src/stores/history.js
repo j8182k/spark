@@ -64,6 +64,16 @@ export const useHistoryStore = defineStore('history',()=>{
             // console.log(ids)
             questionInfo.value = await questionStore.getQuestionByids(ids)
             // console.log('questionInfo',questionInfo)
+            let info_dic = {}
+            for(let index in questionInfo.value){
+                let id = questionInfo.value[index].id
+                info_dic[id] = questionInfo.value[index]
+            }
+            // console.log('info_dic',info_dic)
+            questionInfo.value = info_dic
+
+
+
             // console.log('historyDic',historyDic)
             return historyDic.value
         }catch(error){

@@ -28,19 +28,32 @@ export const useQuestionStore = defineStore('question',()=>{
         return courseList.value
     }
     const initHistory = (questionList)=>{
+        // 创建答题历史字典 ｛题目id：答案｝
+        
         for(let i = 0; i < questionList.length; i++){
             let id = questionList[i].question_id
             q_history.value[id] = "-1"
         }
+        // console.log('答题历史',q_history)
     }
-    // 根据id获取题目详情
+
+    // 根据id列表获取题目详情
     const getQuestionByids = async(ids)=>{
         const params = new FormData();
         params.append('ids',ids)
         try{
             const response = await request.post('http://localhost:8080/getQuestions',params)
             // console.log("题目详情获取",response.data)
-            return response.data
+            let q_dic = response.data
+            let arr = []
+            for(let id in q_dic){
+                // 取出题目数据
+                let data = q_dic[id]
+                // 添加id属性
+                data.id = id
+                arr.push(data)
+            }
+            return arr
         }catch(error){
             console.error(error)
         }
@@ -125,11 +138,14 @@ export const useQuestionStore = defineStore('question',()=>{
         params.append('course',course)
         try{
             const response = await request.post('http://localhost:8080/submit',params)
+            
             const rs_data = JSON.parse(response.data)
-            for(let key in rs_data){
-                result[rs_data[key].id] = rs_data[key].right
+            // console.log('rs_data',rs_data)
+            for(let id in rs_data){
+                result.value[id] = rs_data[id].right
             }
-            return result
+            // console.log('result',result.value)
+            return result.value
         }catch(error){
             console.error(error)
             return 1
@@ -194,10 +210,6 @@ export const useQuestionStore = defineStore('question',()=>{
 
 
     }
-
-
-
-
 
     // 把以id为索引的题目字典转换成列表
     const questionDicTolist = (dic)=>{

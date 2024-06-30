@@ -1,10 +1,10 @@
 <script  setup>
-import { ref,onMounted } from 'vue'
+import { ref,onMounted,onUnmounted } from 'vue'
 import {useHistoryStore} from '@/stores/history.js'
 import {useUserStore} from '@/stores/userInfo.js'
 import {usepageStore} from '@/util/page.js'
 import {useDateStore} from '@/util/date.js'
-import { ElMessage, ElMessageBox } from 'element-plus'
+
 const dateStore = useDateStore()
 const historyStore = useHistoryStore()
 const userStore = useUserStore()
@@ -48,6 +48,7 @@ const setTableData = (data)=>{
         delete q_dic.h_id
         delete q_dic.accuracy
         let q_list = []
+
         for(let q_id in q_dic){
             // console.log('q_id',q_id)
             let q_info = historyStore.getQuestionInfoById(q_id)
@@ -101,34 +102,29 @@ const handleChange = async()=>{
     } else {
         course = selectCourseId.value
     }
-   
     let data = await historyStore.getHistory(userStore.info.username,course)
-    
-
+    // console.log('data',data)
     setTableData(data)
 }
 const isLoading = ref(false)
 import {useChatStore} from '@/util/chat.js'
 const chatStore = useChatStore()
-const analysis = async(id)=>{
-    
-    let q = historyStore.getQuestionInfoById(id)
-   
-    let question = q
-    q = JSON.stringify(q)+'\n请分析上述题目'
-    
-    isLoading.value = true
-    let content = await chatStore.chat(q)
-    isLoading.value = false
-    content = "问题："+question.Q+"<br/>A"+question.A+"<br/>B"+question.B+"<br/>C"+question.C+"<br/>D"+question.D+"<br/>"+content
-    ElMessageBox.alert(
-    content,
-    '分析',
-    {
-      dangerouslyUseHTMLString: true,
-    }
-  )
+import {useRouter} from 'vue-router'
+const router = useRouter();
 
+const analysis = async(id)=>{
+    // console.log('id',id)
+  
+    let q = await historyStore.getQuestionInfoById(id)
+    let question = q
+    let content = "问题："+question.Q+" A:"+question.A+" B:"+question.B+" C:"+question.C+" D:"+question.D
+    q = content +'         请分析上述题目'
+    
+    chatStore.setPrompt("请注意，你现在身份是老师，回答以下问题\n")
+    // 设置当前答疑问题
+    // console.log('q',q)
+    chatStore.setPreQuestion(q)
+    router.push('/chatOnQuestion')
 }
 import {useErrorQuestionStore} from '@/stores/errorQ.js'
 const errorQuestionStore = useErrorQuestionStore()
@@ -137,6 +133,8 @@ const addError = (q_id)=>{
     let username = userStore.info.username
     errorQuestionStore.addErrorQuestions(username,q_id)
 }
+
+
   </script>
 <template>
    <div class="center"><h1>答题记录</h1></div>
@@ -169,6 +167,7 @@ const addError = (q_id)=>{
                     <el-table-column label="操作">
                     <template #default="propss">
                         <el-button @click="addError(propss.row.id)" type="success" v-loading="upLoading" v-if="propss.row.Q!='原题已删除'">添加到错题集</el-button>
+                        <!-- <el-button @click="analysis(propss.row.id)" v-if="propss.row.Q!='原题已删除'">星火分析</el-button> -->
                         <el-button @click="analysis(propss.row.id)" v-if="propss.row.Q!='原题已删除'">星火分析</el-button>
                     </template>
                     </el-table-column>
@@ -184,6 +183,10 @@ const addError = (q_id)=>{
             @current-change="onCurrentChange" style="margin-top: 20px; justify-content: flex-end" />
 
 </div>
+
+  <!-- <el-dialog v-model="dialogTableVisible" title="智能答疑" fullscreen="true">
+    <chat/>
+  </el-dialog> -->
 
 </template>
 
